@@ -1,0 +1,1 @@
+# Docker setup for running SQL Server 2017 and Solr (HTTPS) services
