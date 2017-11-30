@@ -1,0 +1,39 @@
+version: '3'
+services:
+
+  sql2017:
+    image: microsoft/mssql-server-linux:2017-latest
+    ports:
+      - "1433:1433"
+    volumes:
+      - ./Sqldata:/var/opt/mssql
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: Qwerty123
+
+  solr662:
+    image: solr:6.6.2
+    ports:
+      - "8983" # Only exposes the port to other services
+    volumes:
+      - ./Solrdata:/solrhome
+    environment:
+      SOLR_HOME: /solrhome
+      INIT_SOLR_HOME: "yes"
+      
+  proxy:
+    build: 
+      context: .
+      args: 
+        SERVER_NAME: solr
+    image: nginx-solr-proxy
+    ports:
+      - "8983:443"
+    volumes:
+      - ./Certs:/certs
+    environment:
+      SERVER_NAME: solr
+      PROXY_PASS: http://solr662:8983
+      PROXY_REDIRECT: http://solr662/solr/ https://solr:8983/solr/
+    depends_on:
+      - solr662
